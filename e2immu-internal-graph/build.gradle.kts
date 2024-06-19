@@ -17,6 +17,8 @@ plugins {
     id("maven-publish")
 }
 
+group = "org.e2immu"
+
 repositories{
     mavenCentral()
 }
