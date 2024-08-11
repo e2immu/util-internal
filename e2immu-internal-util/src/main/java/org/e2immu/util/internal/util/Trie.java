@@ -89,6 +89,19 @@ public class Trie<T> extends Freezable {
         recursivelyVisit(node, new Stack<>(), visitor);
     }
 
+    @Modified
+    public void visitThrowing(String[] strings, ThrowingBiConsumer<String[], List<T>> visitor) {
+        TrieNode<T> node = goTo(strings);
+        if (node == null) return;
+        recursivelyVisit(node, new Stack<>(), (s, t) -> {
+            try {
+                visitor.accept(s, t);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
     private static <T> void recursivelyVisit(@Modified TrieNode<T> node,
                                              Stack<String> strings,
                                              BiConsumer<String[], List<T>> visitor) {
