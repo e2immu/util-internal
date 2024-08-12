@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class MapUtil {
-
+// keep the 'final' here, there is a test that checks that MapUtil is not extensible
+public final class MapUtil {
 
     public static <T extends Comparable<? super T>, D extends Comparable<? super D>> int compareMaps(Map<T, D> map1, Map<T, D> map2) {
         int c = map1.size() - map2.size();
