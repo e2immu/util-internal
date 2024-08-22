@@ -11,7 +11,12 @@ public class StringUtil {
     }
 
     public static String quote(String s) {
-        return "\"" + s.replace("\"", "\\\"") + "\"";
+        return "\""
+               // double the backslashes
+               + s.replace("\\", "\\\\")
+                       // then quote all double quotes
+                       .replace("\"", "\\\"")
+               + "\"";
     }
 
     public static String capitalize(String name) {
