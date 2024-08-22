@@ -11,12 +11,25 @@ public class StringUtil {
     }
 
     public static String quote(String s) {
-        return "\""
-               // double the backslashes
-               + s.replace("\\", "\\\\")
-                       // then quote all double quotes
-                       .replace("\"", "\\\"")
-               + "\"";
+        StringBuilder sb = new StringBuilder(s.length() * 2);
+        sb.append('"');
+        for (char c : s.toCharArray()) {
+            if ('\n' == c) {
+                sb.append("\\n");
+            } else if ('\r' == c) {
+                sb.append("\\r");
+            } else if ('\t' == c) {
+                sb.append("\\t");
+            } else if ('\b' == c) {
+                sb.append("\\b");
+            } else if ('"' == c || '\\' == c) {
+                sb.append("\\").append(c);
+            } else {
+                sb.append(c);
+            }
+        }
+        sb.append('"');
+        return sb.toString();
     }
 
     public static String capitalize(String name) {
