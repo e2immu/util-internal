@@ -1,5 +1,7 @@
 package org.e2immu.util.internal.util;
 
+import org.e2immu.annotation.NotNull;
+
 public class StringUtil {
 
     private StringUtil() {
@@ -8,6 +10,35 @@ public class StringUtil {
 
     public static void indent(StringBuilder sb, int num) {
         sb.append(" ".repeat(Math.max(0, num)));
+    }
+
+    public static final String AWFULLY_LONG_METHOD = "?? awfully long method";
+
+    /*
+        n <= 10  >> 0..9
+        n <=100  >> 00..99
+        n <=1000 >> 000..999
+         */
+    @NotNull
+    public static String pad(int i, int n) {
+        String s = Integer.toString(i);
+        if (n <= 10) return s;
+        if (n <= 100) {
+            if (i < 10) return "0" + s;
+            return s;
+        }
+        if (n <= 1_000) {
+            if (i < 10) return "00" + s;
+            if (i < 100) return "0" + s;
+            return s;
+        }
+        if (n <= 10_000) {
+            if (i < 10) return "000" + s;
+            if (i < 100) return "00" + s;
+            if (i < 1_000) return "0" + s;
+            return s;
+        }
+        throw new UnsupportedOperationException(AWFULLY_LONG_METHOD);
     }
 
     public static String quote(String s) {
