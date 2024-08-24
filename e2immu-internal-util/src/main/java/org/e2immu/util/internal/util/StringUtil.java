@@ -2,6 +2,8 @@ package org.e2immu.util.internal.util;
 
 import org.e2immu.annotation.NotNull;
 
+import java.util.regex.Pattern;
+
 public class StringUtil {
 
     private StringUtil() {
@@ -68,4 +70,11 @@ public class StringUtil {
         return Character.toUpperCase(name.charAt(0)) + name.substring(1);
     }
 
+    public static String replaceLastDigitsBy(String s, String by) {
+        StringBuilder sb = new StringBuilder(s);
+        while (!sb.isEmpty() && Character.isDigit(sb.charAt(sb.length() - 1))) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        return sb + by;
+    }
 }
