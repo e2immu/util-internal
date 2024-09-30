@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.LongFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class DijkstraShortestPath {
 
     private final Connection initialConnection;
+    private final LongFunction<String> distancePrinter;
 
     public interface Connection {
         Connection next(Connection connection);
@@ -20,7 +22,15 @@ public class DijkstraShortestPath {
         Connection merge(Connection connection);
     }
 
-    public record DC(long dist, Connection connection) implements Comparable<DC> {
+    public class DC implements Comparable<DC> {
+        private final long dist;
+        private final Connection connection;
+
+        public DC(long dist, Connection connection) {
+            this.dist = dist;
+            this.connection = connection;
+        }
+
         @Override
         public int compareTo(DC o) {
             return Long.compare(dist, o.dist);
@@ -32,8 +42,22 @@ public class DijkstraShortestPath {
         }
 
         public DC merge(DC alt) {
-            if(connection == null) return alt;
+            if (connection == null) return alt;
             return new DC(dist, connection.merge(alt.connection));
+        }
+
+        public Connection connection() {
+            return connection;
+        }
+
+        public long dist() {
+            return dist;
+        }
+
+        @Override
+        public String toString() {
+            String distance = distancePrinter == null ? "" + dist : distancePrinter.apply(dist);
+            return "DC[" + distance + ", " + connection + "]";
         }
     }
 
@@ -117,11 +141,11 @@ public class DijkstraShortestPath {
      */
 
 
-    private static final DC NO_PATH = new DC(Long.MAX_VALUE, null);
+    private final DC NO_PATH = new DC(Long.MAX_VALUE, null);
 
-
-    public DijkstraShortestPath(Connection initialConnection) {
+    public DijkstraShortestPath(Connection initialConnection, LongFunction<String> distancePrinter) {
         this.initialConnection = initialConnection;
+        this.distancePrinter = distancePrinter;
     }
 
     public DijkstraShortestPath() {
@@ -135,7 +159,7 @@ public class DijkstraShortestPath {
             public Connection merge(Connection connection) {
                 return this;
             }
-        });
+        }, null);
     }
 
     public long[] shortestPath(int numVertices, EdgeProvider edgeProvider, int sourceVertex) {
