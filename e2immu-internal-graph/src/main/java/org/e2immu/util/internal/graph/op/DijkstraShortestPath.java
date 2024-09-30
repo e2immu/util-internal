@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.LongFunction;
+import java.util.function.LongPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -15,9 +16,16 @@ public class DijkstraShortestPath {
 
     private final Connection initialConnection;
     private final LongFunction<String> distancePrinter;
+    /*
+    provider of a flag that marks when a -4- link with connection information is followed by a -0- or -1- link
+    without connection information. In this special case, we do NOT throw away the connection info; the result remains
+    -4- with the connection info.
+    In the case of -D- or -2-, we must lose the connection info.
+     */
+    private final LongPredicate testKeepNoLinks;
 
     public interface Connection {
-        Connection next(Connection connection);
+        Connection next(Connection connection, boolean keepNoLinks);
 
         Connection merge(Connection connection);
     }
@@ -65,9 +73,10 @@ public class DijkstraShortestPath {
     }
 
     public record DCP(long dist, Connection connection) {
-        // this = the new edge; conn
-        private Accept accept(Connection current, boolean allowNoConnection) {
-            Connection next = this.connection.next(current);
+        // this = the new edge
+        // FIXME if this == -1-, then we must keep the current connection
+        private Accept accept(Connection current, boolean allowNoConnection, boolean keepNoLinks) {
+            Connection next = this.connection.next(current, keepNoLinks);
             if (next == null) {
                 if (allowNoConnection) {
                     return WITHOUT_CONNECTION;
@@ -143,15 +152,17 @@ public class DijkstraShortestPath {
 
     private final DC NO_PATH = new DC(Long.MAX_VALUE, null);
 
-    public DijkstraShortestPath(Connection initialConnection, LongFunction<String> distancePrinter) {
+    public DijkstraShortestPath(Connection initialConnection, LongFunction<String> distancePrinter,
+                                LongPredicate testKeepNoLinks) {
         this.initialConnection = initialConnection;
         this.distancePrinter = distancePrinter;
+        this.testKeepNoLinks = testKeepNoLinks;
     }
 
     public DijkstraShortestPath() {
         this(new Connection() {
             @Override
-            public Connection next(Connection connection) {
+            public Connection next(Connection connection, boolean keepNoLinks) {
                 return null;
             }
 
@@ -159,7 +170,7 @@ public class DijkstraShortestPath {
             public Connection merge(Connection connection) {
                 return this;
             }
-        }, null);
+        }, null, l -> true);
     }
 
     public long[] shortestPath(int numVertices, EdgeProvider edgeProvider, int sourceVertex) {
@@ -201,7 +212,8 @@ public class DijkstraShortestPath {
                     alt = NO_PATH;
                 } else {
                     DCP edgeValue = edge.getValue();
-                    Accept a = edgeValue.accept(d.connection, allowDisjoint.test(edgeValue.dist));
+                    boolean keepNoLinks = testKeepNoLinks.test(edgeValue.dist);
+                    Accept a = edgeValue.accept(d.connection, allowDisjoint.test(edgeValue.dist), keepNoLinks);
                     if (!a.accept) {
                         alt = NO_PATH;
                     } else {
