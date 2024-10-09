@@ -24,8 +24,11 @@ public class DijkstraShortestPath {
      */
     private final LongPredicate testKeepNoLinks;
 
+    public record Accept(boolean accept, Connection next) {
+    }
+
     public interface Connection {
-        Connection next(Connection connection, boolean keepNoLinks);
+        Accept next(Connection connection, boolean allowNoConnection, boolean keepNoLinks);
 
         Connection merge(Connection connection);
     }
@@ -69,21 +72,12 @@ public class DijkstraShortestPath {
         }
     }
 
-    private record Accept(boolean accept, Connection next) {
-    }
-
     public record DCP(long dist, Connection connection) {
         // this = the new edge
         // FIXME if this == -1-, then we must keep the current connection
         private Accept accept(Connection current, boolean allowNoConnection, boolean keepNoLinks) {
-            Connection next = this.connection.next(current, keepNoLinks);
-            if (next == null) {
-                if (allowNoConnection) {
-                    return WITHOUT_CONNECTION;
-                }
-                return NO;
-            }
-            return new Accept(true, next);
+            if(this.connection == null) return new Accept(true, current);
+            return this.connection.next(current, allowNoConnection, keepNoLinks);
         }
     }
 
@@ -162,8 +156,8 @@ public class DijkstraShortestPath {
     public DijkstraShortestPath() {
         this(new Connection() {
             @Override
-            public Connection next(Connection connection, boolean keepNoLinks) {
-                return null;
+            public Accept next(Connection connection, boolean allowNoConnection, boolean keepNoLinks) {
+                return new Accept(true, null);
             }
 
             @Override
