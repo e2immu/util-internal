@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 // keep the 'final' here, there is a test that checks that MapUtil is not extensible
 public final class MapUtil {
@@ -40,4 +41,7 @@ public final class MapUtil {
         return 0;
     }
 
+    public static <K, V> String nice(Map<K, V> map) {
+        return map.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).sorted().collect(Collectors.joining(", "));
+    }
 }
