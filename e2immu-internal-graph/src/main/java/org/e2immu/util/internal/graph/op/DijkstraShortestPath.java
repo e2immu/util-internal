@@ -16,19 +16,12 @@ public class DijkstraShortestPath {
 
     private final Connection initialConnection;
     private final LongFunction<String> distancePrinter;
-    /*
-    provider of a flag that marks when a -4- link with connection information is followed by a -0- or -1- link
-    without connection information. In this special case, we do NOT throw away the connection info; the result remains
-    -4- with the connection info.
-    In the case of -D- or -2-, we must lose the connection info.
-     */
-    private final LongPredicate testKeepNoLinks;
 
     public record Accept(boolean accept, Connection next) {
     }
 
     public interface Connection {
-        Accept next(Connection connection, boolean allowNoConnection, boolean keepNoLinks);
+        Accept next(Connection connection);
 
         Connection merge(Connection connection);
     }
@@ -74,15 +67,11 @@ public class DijkstraShortestPath {
 
     public record DCP(long dist, Connection connection) {
         // this = the new edge
-        // FIXME if this == -1-, then we must keep the current connection
-        private Accept accept(Connection current, boolean allowNoConnection, boolean keepNoLinks) {
+        private Accept accept(Connection current) {
             if(this.connection == null) return new Accept(true, current);
-            return this.connection.next(current, allowNoConnection, keepNoLinks);
+            return this.connection.next(current);
         }
     }
-
-    private static final Accept NO = new Accept(false, null);
-    private static final Accept WITHOUT_CONNECTION = new Accept(true, null);
 
     public static class DCPEntry implements Map.Entry<Integer, DijkstraShortestPath.DCP> {
         int variable;
@@ -146,17 +135,15 @@ public class DijkstraShortestPath {
 
     private final DC NO_PATH = new DC(Long.MAX_VALUE, null);
 
-    public DijkstraShortestPath(Connection initialConnection, LongFunction<String> distancePrinter,
-                                LongPredicate testKeepNoLinks) {
+    public DijkstraShortestPath(Connection initialConnection, LongFunction<String> distancePrinter) {
         this.initialConnection = initialConnection;
         this.distancePrinter = distancePrinter;
-        this.testKeepNoLinks = testKeepNoLinks;
     }
 
     public DijkstraShortestPath() {
         this(new Connection() {
             @Override
-            public Accept next(Connection connection, boolean allowNoConnection, boolean keepNoLinks) {
+            public Accept next(Connection connection) {
                 return new Accept(true, null);
             }
 
@@ -164,17 +151,16 @@ public class DijkstraShortestPath {
             public Connection merge(Connection connection) {
                 return this;
             }
-        }, null, l -> true);
+        }, null);
     }
 
     public long[] shortestPath(int numVertices, EdgeProvider edgeProvider, int sourceVertex) {
-        DC[] dcs = shortestPathDC(numVertices, edgeProvider, l -> false, sourceVertex);
+        DC[] dcs = shortestPathDC(numVertices, edgeProvider, sourceVertex);
         return Arrays.stream(dcs).mapToLong(DC::dist).toArray();
     }
 
     public DC[] shortestPathDC(int numVertices,
                                EdgeProvider edgeProvider,
-                               Predicate<Long> allowDisjoint,
                                int sourceVertex) {
         DC[] dist = new DC[numVertices]; // dist[source]<-0 implicit
 
@@ -206,8 +192,7 @@ public class DijkstraShortestPath {
                     alt = NO_PATH;
                 } else {
                     DCP edgeValue = edge.getValue();
-                    boolean keepNoLinks = testKeepNoLinks.test(edgeValue.dist);
-                    Accept a = edgeValue.accept(d.connection, allowDisjoint.test(edgeValue.dist), keepNoLinks);
+                    Accept a = edgeValue.accept(d.connection);
                     if (!a.accept) {
                         alt = NO_PATH;
                     } else {
