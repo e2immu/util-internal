@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
 import java.util.function.Predicate;
@@ -16,12 +17,13 @@ public class DijkstraShortestPath {
 
     private final Connection initialConnection;
     private final LongFunction<String> distancePrinter;
+    private final Function<Integer, String> nodePrinter;
 
     public record Accept(boolean accept, Connection next) {
     }
 
     public interface Connection {
-        Accept next(Connection connection);
+        Accept next(Function<Integer, String> nodePrinter, int from, int to, Connection connection);
 
         Connection merge(Connection connection);
     }
@@ -67,9 +69,9 @@ public class DijkstraShortestPath {
 
     public record DCP(long dist, Connection connection) {
         // this = the new edge
-        private Accept accept(Connection current) {
-            if(this.connection == null) return new Accept(true, current);
-            return this.connection.next(current);
+        private Accept accept(Function<Integer, String> nodePrinter, int from, int to, Connection current) {
+            if (this.connection == null) return new Accept(true, current);
+            return this.connection.next(nodePrinter, from, to, current);
         }
     }
 
@@ -135,15 +137,18 @@ public class DijkstraShortestPath {
 
     private final DC NO_PATH = new DC(Long.MAX_VALUE, null);
 
-    public DijkstraShortestPath(Connection initialConnection, LongFunction<String> distancePrinter) {
+    public DijkstraShortestPath(Connection initialConnection,
+                                Function<Integer, String> nodePrinter,
+                                LongFunction<String> distancePrinter) {
         this.initialConnection = initialConnection;
         this.distancePrinter = distancePrinter;
+        this.nodePrinter = nodePrinter;
     }
 
     public DijkstraShortestPath() {
         this(new Connection() {
             @Override
-            public Accept next(Connection connection) {
+            public Accept next(Function<Integer, String> nodePrinter, int from, int to, Connection connection) {
                 return new Accept(true, null);
             }
 
@@ -151,7 +156,7 @@ public class DijkstraShortestPath {
             public Connection merge(Connection connection) {
                 return this;
             }
-        }, null);
+        }, i -> "" + i, null);
     }
 
     public long[] shortestPath(int numVertices, EdgeProvider edgeProvider, int sourceVertex) {
@@ -192,7 +197,7 @@ public class DijkstraShortestPath {
                     alt = NO_PATH;
                 } else {
                     DCP edgeValue = edge.getValue();
-                    Accept a = edgeValue.accept(d.connection);
+                    Accept a = edgeValue.accept(nodePrinter, u, v, d.connection);
                     if (!a.accept) {
                         alt = NO_PATH;
                     } else {
