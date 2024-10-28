@@ -91,9 +91,13 @@ public class G<T> {
 
     @Override
     public String toString() {
+        return toString(", ");
+    }
+
+    public String toString(String delimiter) {
         return edges.entrySet().stream()
                 .flatMap(e -> e.getValue().entrySet().stream().map(e2 -> new E<>(e.getKey(), e2.getKey(), e2.getValue())))
-                .map(Record::toString).sorted().collect(Collectors.joining(", "));
+                .map(Record::toString).sorted().collect(Collectors.joining(delimiter));
     }
 
     public G<T> withFewerEdges(Map<V<T>, Set<V<T>>> edgesToRemove) {
