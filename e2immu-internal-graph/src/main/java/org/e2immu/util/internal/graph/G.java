@@ -3,6 +3,7 @@ package org.e2immu.util.internal.graph;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.LongBinaryOperator;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,6 +43,22 @@ public class G<T> {
             }
         }
         return new G<>(vertices, edges);
+    }
+
+    public G<T> reverse(Predicate<T> predicate) {
+        Map<V<T>, Map<V<T>, Long>> newEdges = new LinkedHashMap<>();
+        for (Map.Entry<V<T>, Map<V<T>, Long>> e : edges.entrySet()) {
+            Map<V<T>, Long> localEdges = e.getValue();
+            for (Map.Entry<V<T>, Long> entry : localEdges.entrySet()) {
+                V<T> to = entry.getKey();
+                if(predicate.test(to.t())) {
+                    Map<V<T>, Long> newLocal = newEdges.computeIfAbsent(to, t -> new LinkedHashMap<>());
+                    newLocal.put(e.getKey(), entry.getValue());
+                }
+            }
+        }
+        newEdges.replaceAll((k, v) -> Map.copyOf(v));
+        return new G<T>(vertices, Map.copyOf(newEdges));
     }
 
     public V<T> vertex(T t) {
