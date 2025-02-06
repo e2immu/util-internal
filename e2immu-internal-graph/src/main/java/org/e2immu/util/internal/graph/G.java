@@ -84,6 +84,10 @@ public class G<T> {
             return map.computeIfAbsent(t, f -> new LinkedHashMap<>());
         }
 
+        public Map<T, Long> edges(T t) {
+            return map.get(t);
+        }
+
         public void mergeEdge(T from, T to, long weight) {
             ensureVertex(to);
             ensureVertex(from).merge(to, weight, sum::applyAsLong);
