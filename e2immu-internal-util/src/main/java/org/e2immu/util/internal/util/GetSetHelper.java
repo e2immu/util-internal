@@ -17,4 +17,13 @@ public class GetSetHelper {
         }
         return Character.toLowerCase(extractedName.charAt(0)) + extractedName.substring(1);
     }
+
+    public static String setterName(String fieldName) {
+        return "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+    }
+
+    public static String getterName(String fieldName, boolean isBoolean) {
+        String prefix = isBoolean ? "is" : "get";
+        return prefix + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+    }
 }
