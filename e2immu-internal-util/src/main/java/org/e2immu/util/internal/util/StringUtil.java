@@ -2,8 +2,6 @@ package org.e2immu.util.internal.util;
 
 import org.e2immu.annotation.NotNull;
 
-import java.util.regex.Pattern;
-
 public class StringUtil {
 
     private StringUtil() {
@@ -38,6 +36,21 @@ public class StringUtil {
             if (i < 10) return "000" + s;
             if (i < 100) return "00" + s;
             if (i < 1_000) return "0" + s;
+            return s;
+        }
+        if (n <= 100_000) {
+            if (i < 10) return "0000" + s;
+            if (i < 100) return "000" + s;
+            if (i < 1_000) return "00" + s;
+            if (i < 10_000) return "0" + s;
+            return s;
+        }
+        if (n <= 1_000_000) {
+            if (i < 10) return "00000" + s;
+            if (i < 100) return "0000" + s;
+            if (i < 1_000) return "000" + s;
+            if (i < 10_000) return "00" + s;
+            if (i < 100_000) return "0" + s;
             return s;
         }
         throw new UnsupportedOperationException(AWFULLY_LONG_METHOD);
