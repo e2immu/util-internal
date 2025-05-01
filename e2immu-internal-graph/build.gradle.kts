@@ -19,17 +19,14 @@ plugins {
 
 group = "org.e2immu"
 
-repositories{
+repositories {
     mavenCentral()
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
-}
-
-tasks.jar {
-    from(sourceSets.main.get().allSource)
+    withSourcesJar()
 }
 
 tasks.test {
@@ -37,12 +34,12 @@ tasks.test {
 }
 
 dependencies {
-    implementation ("org.slf4j:slf4j-api:2.0.7")
-    implementation ("org.jgrapht:jgrapht-core:1.5.2")
-    implementation ("org.jgrapht:jgrapht-io:1.5.2")
+    implementation("org.slf4j:slf4j-api:2.0.7")
+    implementation("org.jgrapht:jgrapht-core:1.5.2")
+    implementation("org.jgrapht:jgrapht-io:1.5.2")
 
-    testImplementation ("org.junit.jupiter:junit-jupiter-api:5.9.3")
-    testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:5.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.3")
     testImplementation("ch.qos.logback:logback-classic:1.5.8")
 }
 
@@ -60,13 +57,14 @@ publishing {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
 
-            artifactId = "graph"
-            groupId = "org.e2immu"
-
             pom {
-                name = "e2immu graph library"
-                description = "Helper library for the e2immu analyser"
+                name = "util-internal-graph of e2immu analyser"
+                description = "Static code analyser focusing on modification and immutability. " +
+                        "This module contains some graph algorithms used by the analyser."
                 url = "https://e2immu.org"
+                scm {
+                    url = "https://github.com/e2immu"
+                }
                 licenses {
                     license {
                         name = "GNU Lesser General Public License, version 3.0"
