@@ -7,3 +7,6 @@ tasks.register("clean") {
 tasks.register("publish") {
     dependsOn(gradle.includedBuilds.map { it.task(":publish") })
 }
+tasks.register("publishToMavenLocal") {
+    dependsOn(gradle.includedBuilds.map { it.task(":publishToMavenLocal") })
+}
