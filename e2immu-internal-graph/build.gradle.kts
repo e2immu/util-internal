@@ -13,7 +13,7 @@
  */
 
 plugins {
-    java
+    `java-library`
     `maven-publish`
 }
 
@@ -32,14 +32,22 @@ tasks.test {
     useJUnitPlatform()
 }
 
-dependencies {
-    implementation("org.slf4j:slf4j-api:2.0.7")
-    implementation("org.jgrapht:jgrapht-core:1.5.2")
-    implementation("org.jgrapht:jgrapht-io:1.5.2")
+val slf4jVersion = project.findProperty("slf4jVersion") as String
+val jupiterApiVersion = project.findProperty("jupiterApiVersion") as String
+val jupiterEngineVersion = project.findProperty("jupiterEngineVersion") as String
+val logbackClassicVersion = project.findProperty("logbackClassicVersion") as String
+val jgraphtCoreVersion = project.findProperty("jgraphtCoreVersion") as String
+val jgraphtIoVersion = project.findProperty("jgraphtIoVersion") as String
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.3")
-    testImplementation("ch.qos.logback:logback-classic:1.5.8")
+dependencies {
+    implementation("org.jgrapht:jgrapht-core:$jgraphtCoreVersion")
+    implementation("org.jgrapht:jgrapht-io:$jgraphtIoVersion")
+
+    implementation("org.slf4j:slf4j-api:$slf4jVersion")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterApiVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterEngineVersion")
+    testRuntimeOnly("ch.qos.logback:logback-classic:$logbackClassicVersion")
 }
 
 publishing {
