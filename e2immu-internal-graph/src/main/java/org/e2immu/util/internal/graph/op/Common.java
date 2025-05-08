@@ -8,13 +8,15 @@ import java.util.*;
 public class Common {
 
     public static <T> Set<V<T>> follow(G<T> g, V<T> startingPoint) {
-        assert startingPoint != null;
-        List<V<T>> toDo = new LinkedList<>();
-        Set<V<T>> connected = new LinkedHashSet<>();
-        toDo.add(startingPoint);
-        connected.add(startingPoint);
+        return follow(g, List.of(startingPoint));
+    }
+
+    public static <T> Set<V<T>> follow(G<T> g, Collection<V<T>> startingPoints) {
+        assert startingPoints != null;
+        List<V<T>> toDo = new LinkedList<>(startingPoints);
+        Set<V<T>> connected = new LinkedHashSet<>(startingPoints);
         while (!toDo.isEmpty()) {
-            V<T> v = toDo.remove(0);
+            V<T> v = toDo.removeFirst();
             Map<V<T>, Long> edges = g.edges(v);
             if (edges != null) {
                 for (V<T> to : edges.keySet()) {
