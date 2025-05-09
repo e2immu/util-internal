@@ -8,13 +8,13 @@ import java.util.*;
 public class Common {
 
     public static <T> Set<V<T>> follow(G<T> g, V<T> startingPoint) {
-        return follow(g, List.of(startingPoint));
+        return follow(g, List.of(startingPoint), true);
     }
 
-    public static <T> Set<V<T>> follow(G<T> g, Collection<V<T>> startingPoints) {
+    public static <T> Set<V<T>> follow(G<T> g, Collection<V<T>> startingPoints, boolean includeStartingPoints) {
         assert startingPoints != null;
         List<V<T>> toDo = new LinkedList<>(startingPoints);
-        Set<V<T>> connected = new LinkedHashSet<>(startingPoints);
+        Set<V<T>> connected = includeStartingPoints ? new LinkedHashSet<>(startingPoints) : new LinkedHashSet<>();
         while (!toDo.isEmpty()) {
             V<T> v = toDo.removeFirst();
             Map<V<T>, Long> edges = g.edges(v);
