@@ -51,7 +51,7 @@ public class G<T> {
             Map<V<T>, Long> localEdges = e.getValue();
             for (Map.Entry<V<T>, Long> entry : localEdges.entrySet()) {
                 V<T> to = entry.getKey();
-                if(predicate.test(to.t())) {
+                if (predicate.test(to.t())) {
                     Map<V<T>, Long> newLocal = newEdges.computeIfAbsent(to, t -> new LinkedHashMap<>());
                     newLocal.put(e.getKey(), entry.getValue());
                 }
@@ -116,9 +116,14 @@ public class G<T> {
     }
 
     public String toString(String delimiter) {
+        return toString(delimiter, l -> "" + l);
+    }
+
+    public String toString(String delimiter, Function<Long, String> edgeValuePrinter) {
         return edges.entrySet().stream()
-                .flatMap(e -> e.getValue().entrySet().stream().map(e2 -> new E<>(e.getKey(), e2.getKey(), e2.getValue())))
-                .map(Record::toString).sorted().collect(Collectors.joining(delimiter));
+                .flatMap(e -> e.getValue().entrySet().stream()
+                        .map(e2 -> new E<>(e.getKey(), e2.getKey(), e2.getValue())))
+                .map(e -> e.toString(edgeValuePrinter)).sorted().collect(Collectors.joining(delimiter));
     }
 
     public G<T> withFewerEdges(Map<V<T>, Set<V<T>>> edgesToRemove) {
