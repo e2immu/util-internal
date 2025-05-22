@@ -124,7 +124,7 @@ public class Trie<T> extends Freezable {
             node.data.add(data);
             return data;
         }
-        return node.data.get(0);
+        return node.data.getFirst();
     }
 
     @Modified

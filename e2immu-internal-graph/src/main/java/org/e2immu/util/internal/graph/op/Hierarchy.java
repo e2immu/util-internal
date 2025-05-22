@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /*
-Leaves are in list.get(0)
+Leaves are in list.getFirst()
 Vertices with an edge to leaves only are in list.get(1)
-Vertices with edges to those in list.get(0) and list.get(1) are in list.get(2), etc.
+Vertices with edges to those in list.getFirst() and list.get(1) are in list.get(2), etc.
  */
 public record Hierarchy<T>(List<Set<V<T>>> list) {
     @Override

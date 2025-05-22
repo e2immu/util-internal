@@ -157,7 +157,7 @@ public class BreakCycles<T> {
 
     private void appendLinearizations(List<List<Set<Cycle<T>>>> newLinearizations, List<Set<Cycle<T>>> result) {
         if (newLinearizations.size() == 1) {
-            result.addAll(newLinearizations.get(0));
+            result.addAll(newLinearizations.getFirst());
             return;
         }
         int max = newLinearizations.stream().mapToInt(List::size).max().orElseThrow();
