@@ -101,7 +101,7 @@ public class G<T> {
             return () -> map.entrySet().iterator();
         }
 
-        public void add(T from, Collection<T> tos) {
+        public void add(T from, Iterable<? extends T> tos) {
             Map<T, Long> m = ensureVertex(from);
             tos.forEach(to -> {
                 ensureVertex(to);
