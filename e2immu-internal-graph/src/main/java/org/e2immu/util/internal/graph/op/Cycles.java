@@ -9,6 +9,10 @@ import java.util.stream.Stream;
 
 public record Cycles<T>(Set<Cycle<T>> cycles) implements Iterable<Cycle<T>> {
 
+    public int maxCycleSize() {
+        return cycles.stream().mapToInt(Cycle::size).max().orElse(0);
+    }
+
     @Override
     public String toString() {
         return cycles.stream().map(cycle -> "[" + cycle + "]").sorted().collect(Collectors.joining("; "));

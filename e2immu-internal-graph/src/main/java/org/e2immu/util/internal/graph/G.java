@@ -75,6 +75,13 @@ public class G<T> {
 
         Map<T, Map<T, Long>> map = new LinkedHashMap<>();
 
+        public void addAll(Builder<T> other) {
+            other.map.forEach((from, m) -> {
+                Map<T, Long> m2 = ensureVertex(from);
+                m.forEach((to, value) -> m2.merge(to, value, Long::sum));
+            });
+        }
+
         public void addVertex(T t) {
             ensureVertex(t);
         }
