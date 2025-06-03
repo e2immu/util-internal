@@ -46,16 +46,19 @@ public class ShortestCycleDijkstra {
                 continue;
             }
             // Try to expand
-            for (Map.Entry<V<T>, Long> edge : graph.edges(current.vertex).entrySet()) {
-                // ensure that we don't visit one of the vertices we've already visited; exception: start
-                V<T> to = edge.getKey();
-                boolean isStart = to.equals(startVertex);
-                if (!isStart && current.path.contains(to)) continue;
-                if (isStart && current.path.size() < MIN_CYCLE_SIZE) continue; //don't bother with small cycles
-                long newDistance = current.distance + edge.getValue();
-                List<V<T>> newPath = Stream.concat(current.path.stream(), Stream.of(to)).toList();
-                PathState<T> newState = new PathState<>(to, newDistance, newPath, current.firstDestination);
-                pq.offer(newState);
+            Map<V<T>, Long> edges = graph.edges(current.vertex);
+            if(edges != null) {
+                for (Map.Entry<V<T>, Long> edge : edges.entrySet()) {
+                    // ensure that we don't visit one of the vertices we've already visited; exception: start
+                    V<T> to = edge.getKey();
+                    boolean isStart = to.equals(startVertex);
+                    if (!isStart && current.path.contains(to)) continue;
+                    if (isStart && current.path.size() < MIN_CYCLE_SIZE) continue; //don't bother with small cycles
+                    long newDistance = current.distance + edge.getValue();
+                    List<V<T>> newPath = Stream.concat(current.path.stream(), Stream.of(to)).toList();
+                    PathState<T> newState = new PathState<>(to, newDistance, newPath, current.firstDestination);
+                    pq.offer(newState);
+                }
             }
         }
         return shortest;
