@@ -1,13 +1,20 @@
 package org.e2immu.util.internal.graph.op;
 
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Set;
+import org.e2immu.util.internal.graph.V;
+
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public record Cycles<T>(Set<Cycle<T>> cycles) implements Iterable<Cycle<T>> {
+
+    public int maxCycleSize(Set<T> startingPoints) {
+        Collection<V<T>> vertices = startingPoints.stream().map(V::new).collect(Collectors.toUnmodifiableSet());
+        return cycles.stream()
+                .filter(cycle -> !Collections.disjoint(cycle.vertices(), vertices))
+                .mapToInt(Cycle::size).max().orElse(0);
+    }
 
     public int maxCycleSize() {
         return cycles.stream().mapToInt(Cycle::size).max().orElse(0);
