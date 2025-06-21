@@ -163,6 +163,10 @@ public class G<T> {
     }
 
     public G<T> subGraph(Set<V<T>> subSet) {
+        return subGraph(subSet, null);
+    }
+
+    public G<T> subGraph(Set<V<T>> subSet, Predicate<Long> acceptEdgePredicate) {
         Map<T, V<T>> subMap = new LinkedHashMap<>();
         Map<V<T>, Map<V<T>, Long>> newEdges = new LinkedHashMap<>();
         for (V<T> v : subSet) {
@@ -171,7 +175,7 @@ public class G<T> {
                 Map<V<T>, Long> newLocal = new LinkedHashMap<>();
                 for (Map.Entry<V<T>, Long> entry : localEdges.entrySet()) {
                     V<T> to = entry.getKey();
-                    if (subSet.contains(to)) {
+                    if ((acceptEdgePredicate == null || acceptEdgePredicate.test(entry.getValue())) && subSet.contains(to)) {
                         newLocal.put(to, entry.getValue());
                     }
                 }
